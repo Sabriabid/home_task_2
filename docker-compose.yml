@@ -1,0 +1,21 @@
+version: '3.7'
+
+services:
+  spark-job:
+    build: .
+    volumes:
+      - ./data:/data  # Assurez-vous que le répertoire existe
+      - ./logs:/logs  # Assurez-vous que le répertoire existe
+    ports:
+      - "4040:4040"  # Port pour l'interface web de Spark si nécessaire
+
+  spark-history-server:
+    image: bitnami/spark:3.4.3
+    entrypoint: ["/bin/bash", "-c"]  # Spécifiez bash comme entrypoint
+    command: >
+      /opt/bitnami/spark/sbin/start-history-server.sh &&
+      sleep infinity  # Ajout d'une commande pour garder le conteneur en vie, si nécessaire
+    volumes:
+      - ./logs:/logs
+    ports:
+      - "18080:18080"  # Port pour le Spark History Server
