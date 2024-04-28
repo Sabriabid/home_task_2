@@ -7,8 +7,6 @@ RUN mkdir -p /var/lib/apt/lists/partial && \
     apt-get update && apt-get install -y openjdk-8-jdk
 
 
-RUN curl -o /opt/bitnami/spark/jars/delta-core_2.12-1.2.1.jar https://repo1.maven.org/maven2/io/delta/delta-core_2.12/1.2.1/delta-core_2.12-1.2.1.jar
-
 RUN pip install delta-spark==2.4.0
 RUN pip install deltalake
 RUN pip install jupyterlab 

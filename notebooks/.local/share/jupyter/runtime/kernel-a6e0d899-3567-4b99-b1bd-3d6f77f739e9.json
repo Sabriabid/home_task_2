@@ -1,0 +1,13 @@
+{
+  "shell_port": 40687,
+  "iopub_port": 49029,
+  "stdin_port": 43833,
+  "control_port": 36993,
+  "hb_port": 59931,
+  "ip": "127.0.0.1",
+  "key": "f7343e5b-a335fc354cf1cfa3ded336e4",
+  "transport": "tcp",
+  "signature_scheme": "hmac-sha256",
+  "kernel_name": "python3",
+  "jupyter_session": "/opt/spark/work-dir/Untitled.ipynb"
+}
