@@ -23,6 +23,7 @@ services:
       - ./notebooks:/home/jovyan/
       - .:/opt/spark/work-dir  # This mounts the current directory to /opt/spark/work-dir in the container
       - /tmp/spark/spark-events:/tmp/spark-events  # Ensure logs are written here
+      
     depends_on:
       - spark-master
     command: "start-notebook.sh --NotebookApp.token='' --NotebookApp.password=''"
