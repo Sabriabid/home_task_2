@@ -8,7 +8,6 @@ def ingest_csv_to_deltalake(file_paths, has_header=True):
         .config("spark.sql.extensions", "io.delta.sql.DeltaSparkSessionExtension") \
         .config("spark.sql.catalog.spark_catalog", "org.apache.spark.sql.delta.catalog.DeltaCatalog") \
         .config("spark.delta.logStore.class", "org.apache.spark.sql.delta.storage.HDFSLogStore") \
-        .config("spark.jars", "/opt/bitnami/spark/jars/delta-core_2.12-1.2.1.jar") \
         .getOrCreate()
 
     for file_path in file_paths:

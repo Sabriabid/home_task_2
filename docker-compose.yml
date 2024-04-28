@@ -1,21 +1,46 @@
 version: '3.7'
 
 services:
-  spark-job:
-    build: .
-    volumes:
-      - ./data:/data  # Assurez-vous que le répertoire existe
-      - ./logs:/logs  # Assurez-vous que le répertoire existe
+  spark-master:
+    image: bitnami/spark:latest
+    hostname: spark-master
+    environment:
+      - INIT_DAEMON_STEP=setup_spark
+      - SPARK_HISTORY_OPTS=-Dspark.history.fs.logDirectory=/tmp/spark-events  # Ensuring the Spark job knows where to write logs
     ports:
-      - "4040:4040"  # Port pour l'interface web de Spark si nécessaire
+      - "8080:8080"
+    networks:
+      - spark-network
+
+  jupyter:
+    build: .
+    ports:
+      - "8888:8888"
+    networks:
+      - spark-network
+    volumes:
+      - ./local_lake:/home/jovyan/work
+      - ./notebooks:/home/jovyan/
+      - .:/opt/spark/work-dir  # This mounts the current directory to /opt/spark/work-dir in the container
+      - /tmp/spark/spark-events:/tmp/spark-events  # Ensure logs are written here
+    depends_on:
+      - spark-master
+    command: "start-notebook.sh --NotebookApp.token='' --NotebookApp.password=''"
 
   spark-history-server:
-    image: bitnami/spark:3.4.3
-    entrypoint: ["/bin/bash", "-c"]  # Spécifiez bash comme entrypoint
-    command: >
-      /opt/bitnami/spark/sbin/start-history-server.sh &&
-      sleep infinity  # Ajout d'une commande pour garder le conteneur en vie, si nécessaire
-    volumes:
-      - ./logs:/logs
+    image: rangareddy1988/spark-history-server:${VERSION:-latest}
+    container_name: spark-history-server
+    environment:
+      - SPARK_HISTORY_FS_LOGDIRECTORY=/tmp/spark-events  # Point to the directory where logs are stored
+      - SPARK_HISTORY_UI_PORT=18080
     ports:
-      - "18080:18080"  # Port pour le Spark History Server
+      - 18080:18080
+      - 4041:4040
+    networks:
+      - spark-network
+    volumes:
+      - /tmp/spark/spark-events:/tmp/spark-events  # Shared volume for logs
+      - /tmp/spark/spark-history-server-logs:/var/log/spark
+
+networks:
+  spark-network:

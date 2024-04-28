@@ -1,11 +1,39 @@
-# Utiliser une image de base qui contient déjà Apache Spark
-FROM bitnami/spark:3.4.3
+FROM jupyter/pyspark-notebook:spark-3.4.1
 
-# Copier les scripts de votre job Spark dans le conteneur
+# COPY notebooks/example.ipynb .
+USER root
+RUN mkdir -p /var/lib/apt/lists/partial && \
+    chmod -R 775 /var/lib/apt/lists && \
+    apt-get update && apt-get install -y openjdk-8-jdk
+
+
+RUN curl -o /opt/bitnami/spark/jars/delta-core_2.12-1.2.1.jar https://repo1.maven.org/maven2/io/delta/delta-core_2.12/1.2.1/delta-core_2.12-1.2.1.jar
+
+RUN pip install delta-spark==2.4.0
+RUN pip install deltalake
+RUN pip install jupyterlab 
+RUN pip install pandas
+RUN pip install pyspark==3.4.1
+
+ARG NB_USER=jovyan
+ARG NB_UID=1000
+ARG NB_GID=100
+
+ENV USER ${NB_USER}
+ENV HOME /home/${NB_USER}
+RUN groupadd -f ${USER} && \
+    chown -R ${USER}:${USER} ${HOME}
+
+USER ${NB_USER}
+
+RUN export PACKAGES="io.delta:delta-core_2.12:0.7.0"
+RUN export PYSPARK_SUBMIT_ARGS="--packages ${PACKAGES} pyspark-shell"
+
+# Copy your Spark job script into the container
 COPY job.py /opt/spark/work-dir/
 
-# Définir le répertoire de travail
+# Set the working directory
 WORKDIR /opt/spark/work-dir
 
-# Commande pour exécuter le job Spark
+# Command to run your Spark job
 CMD ["spark-submit", "--master", "local[*]", "job.py"]
