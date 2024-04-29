@@ -62,6 +62,7 @@ COPY --chown=${NBuser} rs/ "${WORKDIR}/rs"
 RUN chown -R ${NBuser}:${GROUP} /home/${NBuser}/ \
 && chown -R ${NBuser}:${GROUP} ${WORKDIR}
 
+
 # Rust install
 USER ${NBuser}
 RUN curl https://sh.rustup.rs -sSf | sh -s -- -y
