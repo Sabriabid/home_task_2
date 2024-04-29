@@ -5,18 +5,25 @@ services:
     image: bitnami/spark:3.4
     hostname: spark-master
     environment:
+      - SPARK_MODE=master
       - SPARK_CONF_DIR=/opt/bitnami/spark/conf
       - SPARK_MASTER_HOST=spark-master
       - SPARK_EVENTLOG_ENABLED=true
       - SPARK_EVENTLOG_DIR=/tmp/spark-events
     ports:
       - "8080:8080"
+      - "4040:4040"
     networks:
       - spark-network
   spark-worker:
     image: bitnami/spark:3.4
     environment:
+      - SPARK_MODE=worker
       - SPARK_MASTER_URL=spark://spark-master:7077
+      - SPARK_WORKER_CORES=2
+      - SPARK_WORKER_MEMORY=3G
+      - SPARK_DRIVER_MEMORY=2G
+      - SPARK_EXECUTOR_MEMORY=2G
     depends_on:
       - spark-master
     networks:
@@ -45,7 +52,6 @@ services:
       - SPARK_HISTORY_UI_PORT=18080
     ports:
       - 18080:18080
-      - 4041:4040
     networks:
       - spark-network
     volumes:
