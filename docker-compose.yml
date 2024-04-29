@@ -5,8 +5,10 @@ services:
     image: bitnami/spark:3.4
     hostname: spark-master
     environment:
-      - INIT_DAEMON_STEP=setup_spark
-      - SPARK_HISTORY_OPTS=-Dspark.history.fs.logDirectory=/tmp/spark-events  # Ensuring the Spark job knows where to write logs
+      - SPARK_CONF_DIR=/opt/bitnami/spark/conf
+      - SPARK_MASTER_HOST=spark-master
+      - SPARK_EVENTLOG_ENABLED=true
+      - SPARK_EVENTLOG_DIR=/tmp/spark-events
     ports:
       - "8080:8080"
     networks:
@@ -21,9 +23,8 @@ services:
     volumes:
       - ./local_lake:/home/jovyan/work
       - ./notebooks:/home/jovyan/
-      - .:/opt/spark/work-dir  # This mounts the current directory to /opt/spark/work-dir in the container
-      - /tmp/spark/spark-events:/tmp/spark-events  # Ensure logs are written here
-      
+      - .:/opt/spark/work-dir
+      - /tmp/spark/spark-events:/tmp/spark-events
     depends_on:
       - spark-master
     command: "start-notebook.sh --NotebookApp.token='' --NotebookApp.password=''"
@@ -32,7 +33,7 @@ services:
     image: rangareddy1988/spark-history-server:${VERSION:-latest}
     container_name: spark-history-server
     environment:
-      - SPARK_HISTORY_FS_LOGDIRECTORY=/tmp/spark-events  # Point to the directory where logs are stored
+      - SPARK_HISTORY_FS_LOGDIRECTORY=/tmp/spark-events
       - SPARK_HISTORY_UI_PORT=18080
     ports:
       - 18080:18080
@@ -40,7 +41,7 @@ services:
     networks:
       - spark-network
     volumes:
-      - /tmp/spark/spark-events:/tmp/spark-events  # Shared volume for logs
+      - /tmp/spark/spark-events:/tmp/spark-events
       - /tmp/spark/spark-history-server-logs:/var/log/spark
 
 networks:
