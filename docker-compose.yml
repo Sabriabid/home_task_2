@@ -13,6 +13,14 @@ services:
       - "8080:8080"
     networks:
       - spark-network
+  spark-worker:
+    image: bitnami/spark:3.4
+    environment:
+      - SPARK_MASTER_URL=spark://spark-master:7077
+    depends_on:
+      - spark-master
+    networks:
+      - spark-network
 
   jupyter:
     build: .
@@ -46,3 +54,4 @@ services:
 
 networks:
   spark-network:
+    driver: bridge
